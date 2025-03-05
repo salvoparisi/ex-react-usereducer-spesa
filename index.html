@@ -11,22 +11,62 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script type="text/babel">
+        const { useState } = React
         function Lista() {
+            const [addedProducts, setAddedProducts] = useState([])
             const products = [
                 { name: 'Mela', price: 0.5 },
                 { name: 'Pane', price: 1.2 },
                 { name: 'Latte', price: 1.0 },
                 { name: 'Pasta', price: 0.7 },
             ];
+            function addToCart(product) {
+                if (addedProducts.some(i => i.name == product.name)) {
+                    updateProductQuantity(product)
+                } else {
+                    setAddedProducts(prevProds => [
+                        ...prevProds,
+                        { ...product, quantita: 1 }
+
+                    ]);
+
+                }
+
+            }
+            function updateProductQuantity(product) {
+                setAddedProducts(prevProds =>
+                    prevProds.map(i =>
+                        i.name === product.name ? { ...i, quantita: i.quantita + 1 } : i
+                    )
+                );
+            }
             return (
                 <>
                     <ul>
-                        {products.map(product => {
+                        {products.map((product, i) => {
                             return (
-                                <li>{product.name}: ${product.price}</li>
+                                <li key={i}>
+                                    {product.name}: ${product.price}
+                                    <button onClick={() => addToCart(product)}>Aggiungi al carrello</button>
+                                </li>
                             )
                         })}
                     </ul>
+                    {addedProducts.length > 0 && (
+                        <details>
+                            <summary>Carrello ({addedProducts.length})</summary>
+                            <ul>
+                                {addedProducts.map((product, i) => {
+                                    return (
+                                        <li key={i}>
+                                            {product.quantita} {product.name}: ${product.price}
+                                        </li>
+                                    )
+                                })}
+                            </ul>
+                        </details>
+
+                    )}
                 </>
             )
         }
