@@ -11,9 +11,10 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script type="text/babel">
-        const { useState } = React
+        const { useState, useEffect } = React
         function Lista() {
             const [addedProducts, setAddedProducts] = useState([])
+            const [price, setPrice] = useState(0)
             const products = [
                 { name: 'Mela', price: 0.5 },
                 { name: 'Pane', price: 1.2 },
@@ -33,6 +34,10 @@
                 }
 
             }
+            function removeFromCart(product) {
+                setAddedProducts(prevProds => prevProds.filter(i => i.name !== product.name));
+            }
+
             function updateProductQuantity(product) {
                 setAddedProducts(prevProds =>
                     prevProds.map(i =>
@@ -40,6 +45,11 @@
                     )
                 );
             }
+            useEffect(() => {
+                const total = addedProducts.reduce((sum, prod) => sum + prod.quantita * prod.price, 0);
+                setPrice(total);
+            }, [addedProducts]);
+
             return (
                 <>
                     <ul>
@@ -53,19 +63,22 @@
                         })}
                     </ul>
                     {addedProducts.length > 0 && (
-                        <details>
-                            <summary>Carrello ({addedProducts.length})</summary>
-                            <ul>
-                                {addedProducts.map((product, i) => {
-                                    return (
-                                        <li key={i}>
-                                            {product.quantita} {product.name}: ${product.price}
-                                        </li>
-                                    )
-                                })}
-                            </ul>
-                        </details>
-
+                        <>
+                            <details>
+                                <summary>Carrello ({addedProducts.length})</summary>
+                                <ul>
+                                    {addedProducts.map((product, i) => {
+                                        return (
+                                            <li key={i}>
+                                                {product.quantita} {product.name}: ${product.price}
+                                                <button onClick={() => removeFromCart(product)}>Rimuovi dal carrello</button>
+                                            </li>
+                                        )
+                                    })}
+                                </ul>
+                            </details>
+                            <div>Totale da Pagare: {price.toFixed(2)}</div>
+                        </>
                     )}
                 </>
             )
